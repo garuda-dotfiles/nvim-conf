@@ -156,6 +156,7 @@ return {
   {
     "nvimdev/dashboard-nvim",
     event = "VimEnter",
+    config = {},
     opts = function(_, opts)
       local logo = [[
         ██████╗ ███████╗██╗   ██╗ █████╗ ███████╗██╗     ██╗███████╗███████╗
