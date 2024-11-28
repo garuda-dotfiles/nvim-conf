@@ -26,6 +26,7 @@ return {
         "gomod",
         "gowork",
         "gosum",
+        "cpp",
       },
 
       -- matchup = {
