@@ -2,31 +2,24 @@ local M = {}
 
 function M.cowboy()
   ---@type table?
-  local id
   local ok = true
   for _, key in ipairs({ "h", "j", "k", "l", "+", "-" }) do
     local count = 0
-    local timer = assert(vim.loop.new_timer())
+    local timer = assert(vim.uv.new_timer())
     local map = key
     vim.keymap.set("n", key, function()
       if vim.v.count > 0 then
         count = 0
       end
-      if count >= 50 then
-        ok, id = pcall(
-          vim.notify,
-          "Calm down, you can use <CTRL><D> to `down` and <CTRL><U> to UP. \nDon't use single key!",
-          vim.log.levels.WARN,
-          {
-            icon = "🤠",
-            replace = id,
-            keep = function()
-              return count >= 50
-            end,
-          }
-        )
+      if count >= 50 and vim.bo.buftype ~= "nofile" then
+        ok = pcall(vim.notify, "Stop, calm down!", vim.log.levels.WARN, {
+          icon = "🤠",
+          id = "cowboy",
+          keep = function()
+            return count >= 50
+          end,
+        })
         if not ok then
-          id = nil
           return map
         end
       else
