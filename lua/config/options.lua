@@ -52,3 +52,7 @@ vim.filetype.add({
     mdx = "mdx",
   },
 })
+
+vim.g.lazyvim_prettier_needs_config = true
+vim.g.lazyvim_picker = "telescope"
+vim.g.lazyvim_cmp = "blink.cmp"
