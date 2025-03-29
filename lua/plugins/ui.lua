@@ -60,6 +60,12 @@ return {
     },
   },
 
+  -- markdown
+  {
+    "MeanderingProgrammer/render-markdown.nvim",
+    enabled = false,
+  },
+
   -- disabled animations when scroll
   {
     "snacks.nvim",
