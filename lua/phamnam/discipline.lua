@@ -1,7 +1,7 @@
 local M = {}
 
 function M.cowboy()
-  ---@type table?
+  ---@type boolean?
   local ok = true
   for _, key in ipairs({ "h", "j", "k", "l", "+", "-" }) do
     local count = 0
