@@ -24,6 +24,20 @@ return {
   -- lsp servers
   {
     "neovim/nvim-lspconfig",
+    defaultConfig = function()
+      local keys = require("lazyvim.plugins.lsp.keymaps").get()
+      vim.list_extend(keys, {
+        {
+          "gd",
+          function()
+            -- DO NOT RESUSE WINDOW
+            require("telescope.builtin").lsp_definitions({ reuse_win = false })
+          end,
+          desc = "Goto Definition",
+          has = "definition",
+        },
+      })
+    end,
     opts = {
       inlay_hints = { enabled = false },
       ---@type lspconfig.options
@@ -175,55 +189,6 @@ return {
             },
           },
         },
-      },
-      setup = {
-        gopls = function(_, _)
-          -- workaround for gopls not supporting semanticTokensProvider
-          -- https://github.com/golang/go/issues/54531#issuecomment-1464982242
-          LazyVim.lsp.on_attach(function(client, _)
-            if client.name == "gopls" and not client.server_capabilities.semanticTokensProvider then
-              local semantic = client.config.capabilities.textDocument.semanticTokens
-              if semantic ~= nil or semantic then
-                client.server_capabilities.semanticTokensProvider = {
-                  full = true,
-                  legend = {
-                    tokenTypes = semantic.tokenTypes,
-                    tokenModifiers = semantic.tokenModifiers,
-                  },
-                  range = true,
-                }
-              end
-            end
-          end, "gopls")
-          -- end workaround
-        end,
-      },
-    },
-  },
-  {
-    "neovim/nvim-lspconfig",
-    defaultConfig = function()
-      local keys = require("lazyvim.plugins.lsp.keymaps").get()
-      vim.list_extend(keys, {
-        {
-          "gd",
-          function()
-            -- DO NOT RESUSE WINDOW
-            require("telescope.builtin").lsp_definitions({ reuse_win = false })
-          end,
-          desc = "Goto Definition",
-          has = "definition",
-        },
-      })
-    end,
-  },
-
-  -- Clangd
-  {
-    "neovim/nvim-lspconfig",
-    opts = {
-      servers = {
-        -- Ensure mason installs the server
         clangd = {
           keys = {
             { "<leader>ch", "<cmd>ClangdSwitchSourceHeader<cr>", desc = "Switch Source/Header (C/C++)" },
@@ -261,6 +226,26 @@ return {
         },
       },
       setup = {
+        gopls = function(_, _)
+          -- workaround for gopls not supporting semanticTokensProvider
+          -- https://github.com/golang/go/issues/54531#issuecomment-1464982242
+          LazyVim.lsp.on_attach(function(client, _)
+            if client.name == "gopls" and not client.server_capabilities.semanticTokensProvider then
+              local semantic = client.config.capabilities.textDocument.semanticTokens
+              if semantic ~= nil or semantic then
+                client.server_capabilities.semanticTokensProvider = {
+                  full = true,
+                  legend = {
+                    tokenTypes = semantic.tokenTypes,
+                    tokenModifiers = semantic.tokenModifiers,
+                  },
+                  range = true,
+                }
+              end
+            end
+          end, "gopls")
+          -- end workaround
+        end,
         clangd = function(_, opts)
           local clangd_ext_opts = LazyVim.opts("clangd_extensions.nvim")
           require("clangd_extensions").setup(vim.tbl_deep_extend("force", clangd_ext_opts or {}, { server = opts }))
