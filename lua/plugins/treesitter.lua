@@ -28,18 +28,12 @@ return {
         "gowork",
         "gosum",
       },
-
-      -- matchup = {
-      -- 	enable = true,
-      -- },
-
       -- https://github.com/nvim-treesitter/playground#query-linter
       query_linter = {
         enable = true,
         use_virtual_text = true,
         lint_events = { "BufWrite", "CursorHold" },
       },
-
       playground = {
         enable = true,
         disable = {},
@@ -59,8 +53,5 @@ return {
         },
       },
     },
-    config = function(_, opts)
-      require("nvim-treesitter").setup(opts)
-    end,
   },
 }
