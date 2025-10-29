@@ -24,20 +24,6 @@ return {
   -- lsp servers
   {
     "neovim/nvim-lspconfig",
-    defaultConfig = function()
-      local keys = require("lazyvim.plugins.lsp.keymaps").get()
-      vim.list_extend(keys, {
-        {
-          "gd",
-          function()
-            -- DO NOT RESUSE WINDOW
-            require("telescope.builtin").lsp_definitions({ reuse_win = false })
-          end,
-          desc = "Goto Definition",
-          has = "definition",
-        },
-      })
-    end,
     opts = {
       inlay_hints = { enabled = false },
       ---@type lspconfig.options
@@ -185,6 +171,19 @@ return {
               staticcheck = true,
               directoryFilters = { "-.git", "-.vscode", "-.idea", "-.vscode-test", "-node_modules" },
               semanticTokens = true,
+            },
+          },
+        },
+        ["*"] = {
+          keys = {
+            {
+              "gd",
+              function()
+                -- NONE REUSE CURRENT WINDOW
+                require("telescope.builtin").lsp_definitions({ reuse_win = false })
+              end,
+              desc = "Goto Definition",
+              has = "definition",
             },
           },
         },
