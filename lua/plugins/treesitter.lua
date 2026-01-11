@@ -20,6 +20,7 @@ return {
         "java",
         "php",
         "rust",
+        "ron",
         "scss",
         "sql",
         "svelte",

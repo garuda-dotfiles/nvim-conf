@@ -139,6 +139,8 @@ return {
         "gowork",
         "gosum",
         "cpp",
+        "rust",
+        "ron",
       },
     },
   },
