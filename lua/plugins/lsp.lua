@@ -1,4 +1,3 @@
-local bacon_ls = require("lspconfig.configs.bacon_ls")
 return {
   -- tools
   {
@@ -176,9 +175,9 @@ return {
           },
         },
         bacon_ls = {
-          enabled = diagnostics == "bacon-ls",
+          enabled = true,
         },
-        rust_analyzer = { enabled = true },
+        rust_analyzer = { enabled = false },
         ["*"] = {
           keys = {
             {
@@ -256,12 +255,6 @@ return {
               buildScripts = {
                 enable = true,
               },
-            },
-            -- Add clippy lints for Rust if using rust-analyzer
-            checkOnSave = true,
-            -- Enable diagnostics if using rust-analyzer
-            diagnostics = {
-              enable = true,
             },
             procMacro = {
               enable = true,
