@@ -1,24 +1,18 @@
+-- Attach at the git root instead of the server's own root markers
+local function git_root(bufnr, on_dir)
+  on_dir(vim.fs.root(bufnr, ".git"))
+end
+
 return {
-  -- tools
+  -- tools (the lang extras already install the Go/TS/Rust tooling)
   {
     "mason-org/mason.nvim",
-    opts = function(_, opts)
-      vim.list_extend(opts.ensure_installed, {
-        "stylua",
+    opts = {
+      ensure_installed = {
         "selene",
-        "luacheck",
         "shellcheck",
-        "shfmt",
-        "tailwindcss-language-server",
-        "typescript-language-server",
-        "css-lsp",
-        "goimports",
-        "gofumpt",
-        "gomodifytags",
-        "impl",
-        "delve",
-      })
-    end,
+      },
+    },
   },
 
   -- lsp servers
@@ -26,40 +20,33 @@ return {
     "neovim/nvim-lspconfig",
     opts = {
       inlay_hints = { enabled = false },
-      ---@type lspconfig.options
+      ---@type table<string, lazyvim.lsp.Config|boolean>
       servers = {
         cssls = {},
         tailwindcss = {
-          root_dir = function(...)
-            return require("lspconfig.util").root_pattern(".git")(...)
-          end,
+          root_dir = git_root,
         },
-        tsserver = {
-          root_dir = function(...)
-            return require("lspconfig.util").root_pattern(".git")(...)
-          end,
-          single_file_support = false,
+        vtsls = {
+          root_dir = git_root,
           settings = {
             typescript = {
               inlayHints = {
-                includeInlayParameterNameHints = "literal",
-                includeInlayParameterNameHintsWhenArgumentMatchesName = false,
-                includeInlayFunctionParameterTypeHints = true,
-                includeInlayVariableTypeHints = false,
-                includeInlayPropertyDeclarationTypeHints = true,
-                includeInlayFunctionLikeReturnTypeHints = true,
-                includeInlayEnumMemberValueHints = true,
+                parameterNames = { enabled = "literals", suppressWhenArgumentMatchesName = true },
+                parameterTypes = { enabled = true },
+                variableTypes = { enabled = false },
+                propertyDeclarationTypes = { enabled = true },
+                functionLikeReturnTypes = { enabled = true },
+                enumMemberValues = { enabled = true },
               },
             },
             javascript = {
               inlayHints = {
-                includeInlayParameterNameHints = "all",
-                includeInlayParameterNameHintsWhenArgumentMatchesName = false,
-                includeInlayFunctionParameterTypeHints = true,
-                includeInlayVariableTypeHints = true,
-                includeInlayPropertyDeclarationTypeHints = true,
-                includeInlayFunctionLikeReturnTypeHints = true,
-                includeInlayEnumMemberValueHints = true,
+                parameterNames = { enabled = "all", suppressWhenArgumentMatchesName = true },
+                parameterTypes = { enabled = true },
+                variableTypes = { enabled = true },
+                propertyDeclarationTypes = { enabled = true },
+                functionLikeReturnTypes = { enabled = true },
+                enumMemberValues = { enabled = true },
               },
             },
           },
@@ -73,8 +60,6 @@ return {
           },
         },
         lua_ls = {
-          -- enabled = false,
-          single_file_support = true,
           settings = {
             Lua = {
               workspace = {
@@ -83,11 +68,6 @@ return {
               completion = {
                 workspaceWord = true,
                 callSnippet = "Both",
-              },
-              misc = {
-                parameters = {
-                  -- "--log-level=trace",
-                },
               },
               hint = {
                 enable = true,
@@ -105,7 +85,6 @@ return {
               },
               diagnostics = {
                 disable = { "incomplete-signature-doc", "trailing-space" },
-                -- enable = false,
                 groupSeverity = {
                   strong = "Warning",
                   strict = "Warning",
@@ -174,10 +153,6 @@ return {
             },
           },
         },
-        bacon_ls = {
-          enabled = true,
-        },
-        rust_analyzer = { enabled = false },
         ["*"] = {
           keys = {
             {
@@ -192,89 +167,17 @@ return {
           },
         },
       },
-      setup = {
-        gopls = function(_, opts)
-          -- workaround for gopls not supporting semanticTokensProvider
-          -- https://github.com/golang/go/issues/54531#issuecomment-1464982242
-          Snacks.util.lsp.on({ name = "gopls" }, function(_, client)
-            if not client.server_capabilities.semanticTokensProvider then
-              local semantic = client.config.capabilities.textDocument.semanticTokens
-              client.server_capabilities.semanticTokensProvider = {
-                full = true,
-                legend = {
-                  tokenTypes = semantic.tokenTypes,
-                  tokenModifiers = semantic.tokenModifiers,
-                },
-                range = true,
-              }
-            end
-          end)
-          -- end workaround
-        end,
-      },
     },
   },
 
-  -- lsp server for Rust [crates.nvim]
-  {
-    "Saecki/crates.nvim",
-    event = { "BufRead Cargo.toml" },
-    opts = {
-      completion = {
-        crates = {
-          enabled = true,
-        },
-      },
-      lsp = {
-        enabled = true,
-        actions = true,
-        completion = true,
-        hover = true,
-      },
-    },
-  },
+  -- Rust: the LazyVim extra detects the codelldb library with `uname`, which does not exist on Windows
   {
     "mrcjkb/rustaceanvim",
-    ft = { "rust" },
     opts = {
       server = {
-        on_attach = function(_, bufnr)
-          vim.keymap.set("n", "<leader>cR", function()
-            vim.cmd.RustLsp("codeAction")
-          end, { desc = "Code Action", buffer = bufnr })
-          vim.keymap.set("n", "<leader>dr", function()
-            vim.cmd.RustLsp("debuggables")
-          end, { desc = "Rust Debuggables", buffer = bufnr })
-        end,
         default_settings = {
-          -- rust-analyzer language server configuration
           ["rust-analyzer"] = {
-            cargo = {
-              allFeatures = true,
-              loadOutDirsFromCheck = true,
-              buildScripts = {
-                enable = true,
-              },
-            },
-            procMacro = {
-              enable = true,
-            },
-            files = {
-              exclude = {
-                ".direnv",
-                ".git",
-                ".jj",
-                ".github",
-                ".gitlab",
-                "bin",
-                "node_modules",
-                "target",
-                "venv",
-                ".venv",
-              },
-              -- Avoid Roots Scanned hanging, see https://github.com/rust-lang/rust-analyzer/issues/12613#issuecomment-2096386344
-              watcher = "client",
-            },
+            check = { command = "clippy" },
           },
         },
       },
@@ -282,8 +185,9 @@ return {
     config = function(_, opts)
       if LazyVim.has("mason.nvim") then
         local codelldb = vim.fn.exepath("codelldb")
-        local codelldb_lib_ext = io.popen("uname"):read("*l") == "Linux" and ".so" or ".dylib"
-        local library_path = vim.fn.expand("$MASON/opt/lldb/lib/liblldb" .. codelldb_lib_ext)
+        local sysname = vim.uv.os_uname().sysname
+        local library_path = sysname:find("Windows") and vim.fn.expand("$MASON/opt/lldb/bin/liblldb.dll")
+          or vim.fn.expand("$MASON/opt/lldb/lib/liblldb" .. (sysname == "Linux" and ".so" or ".dylib"))
         opts.dap = {
           adapter = require("rustaceanvim.config").get_codelldb_adapter(codelldb, library_path),
         }

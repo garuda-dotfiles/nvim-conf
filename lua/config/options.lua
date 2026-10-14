@@ -1,8 +1,5 @@
 vim.g.mapleader = " "
 
-vim.opt.encoding = "utf-8"
-vim.opt.fileencoding = "utf-8"
-
 vim.opt.number = true
 
 vim.opt.title = true
@@ -11,11 +8,10 @@ vim.opt.smartindent = true
 vim.opt.hlsearch = true
 vim.opt.backup = false
 vim.opt.showcmd = true
-vim.opt.cmdheight = 1
+vim.opt.cmdheight = 0
 vim.opt.laststatus = 3
 vim.opt.expandtab = true
 vim.opt.scrolloff = 10
-vim.opt.shell = "fish"
 vim.opt.backupskip = { "/tmp/*", "/private/tmp/*" }
 vim.opt.inccommand = "split"
 vim.opt.ignorecase = true -- Case insensitive searching UNLESS /C or capital in search
@@ -31,22 +27,35 @@ vim.opt.splitbelow = true -- Put new windows below current
 vim.opt.splitright = true -- Put new windows right of current
 vim.opt.splitkeep = "cursor"
 vim.opt.mouse = ""
-vim.g.lazyvim_rust_diagnostics = "bacon-ls"
 
--- Undercurl
-vim.cmd([[let &t_Cs = "\e[4:3m"]])
-vim.cmd([[let &t_Ce = "\e[4:0m"]])
+-- Shell: PowerShell on Windows (fish is not available there), fish elsewhere when installed
+if vim.fn.has("win32") == 1 then
+  if vim.fn.executable("pwsh") == 1 then
+    LazyVim.terminal.setup("pwsh")
+  else
+    -- Windows PowerShell 5.1: LazyVim's flags touch $PSStyle, which only exists in pwsh 7 (see :h shell-powershell)
+    vim.opt.shell = "powershell"
+    vim.opt.shellcmdflag =
+      "-NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Command [Console]::InputEncoding=[Console]::OutputEncoding=[System.Text.Encoding]::UTF8;$PSDefaultParameterValues['Out-File:Encoding']='utf8';"
+    vim.opt.shellredir = '2>&1 | %%{ "$_" } | Out-File %s; exit $LastExitCode'
+    vim.opt.shellpipe = '2>&1 | %%{ "$_" } | tee %s; exit $LastExitCode'
+    vim.opt.shellquote = ""
+    vim.opt.shellxquote = ""
+  end
+elseif vim.fn.executable("fish") == 1 then
+  vim.opt.shell = "fish"
+end
 
 -- Add asterisks in block comments
 vim.opt.formatoptions:append({ "r" })
 
-vim.cmd([[au BufNewFile,BufRead *.astro setf astro]])
-vim.cmd([[au BufNewFile,BufRead Podfile setf ruby]])
+vim.filetype.add({
+  extension = { astro = "astro" },
+  filename = { Podfile = "ruby" },
+})
 
-if vim.fn.has("nvim-0.8") == 1 then
-  vim.opt.cmdheight = 0
-end
-
+-- bacon-ls hangs on `initialize` on Windows, so rust-analyzer runs clippy there instead (see plugins/lsp.lua)
+vim.g.lazyvim_rust_diagnostics = vim.fn.has("win32") == 1 and "rust-analyzer" or "bacon-ls"
 vim.g.lazyvim_prettier_needs_config = true
 vim.g.lazyvim_picker = "telescope"
 vim.g.lazyvim_cmp = "blink.cmp"

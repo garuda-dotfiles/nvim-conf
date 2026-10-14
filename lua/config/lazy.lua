@@ -40,6 +40,9 @@ require("lazy").setup({
     { import = "lazyvim.plugins.extras.lang.tailwind" },
     { import = "lazyvim.plugins.extras.ui.dashboard-nvim" },
 
+    { import = "lazyvim.plugins.extras.dap.core" },
+    { import = "lazyvim.plugins.extras.editor.inc-rename" },
+    { import = "lazyvim.plugins.extras.editor.outline" },
     { import = "lazyvim.plugins.extras.util.mini-hipatterns" },
     { import = "plugins" },
   },
@@ -55,6 +58,7 @@ require("lazy").setup({
   dev = {
     path = "~/.ghq/github.com",
   },
+  rocks = { enabled = false }, -- no plugin needs luarocks
   checker = { enabled = true }, -- automatically check for plugin updates
   performance = {
     cache = {

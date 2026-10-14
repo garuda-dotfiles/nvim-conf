@@ -2,7 +2,6 @@ return {
   {
     enabled = false,
     "folke/flash.nvim",
-    ---@type Flash.Config
     opts = {
       search = {
         forward = true,
@@ -21,7 +20,7 @@ return {
         hsl_color = {
           pattern = "hsl%(%d+,? %d+%%?,? %d+%%?%)",
           group = function(_, match)
-            local utils = require("solarized-osaka.hsl")
+            local utils = require("phamnam.hsl")
             --- @type string, string, string
             local nh, ns, nl = match:match("hsl%((%d+),? (%d+)%%?,? (%d+)%%?%)")
             --- @type number?, number?, number?
@@ -51,10 +50,6 @@ return {
   {
     "nvim-telescope/telescope.nvim",
     dependencies = {
-      {
-        "nvim-telescope/telescope-fzf-native.nvim",
-        build = "make",
-      },
       "nvim-telescope/telescope-file-browser.nvim",
     },
     keys = {
@@ -214,8 +209,9 @@ return {
         },
       }
       telescope.setup(opts)
-      require("telescope").load_extension("fzf")
-      require("telescope").load_extension("file_browser")
+      -- telescope-fzf-native comes from the LazyVim telescope extra and may not be built yet
+      pcall(telescope.load_extension, "fzf")
+      telescope.load_extension("file_browser")
     end,
   },
 
@@ -228,14 +224,14 @@ return {
         function()
           require("close_buffers").delete({ type = "hidden" })
         end,
-        "Close Hidden Buffers",
+        desc = "Close Hidden Buffers",
       },
       {
         "<leader>tu",
         function()
           require("close_buffers").delete({ type = "nameless" })
         end,
-        "Close Nameless Buffers",
+        desc = "Close Nameless Buffers",
       },
     },
   },

@@ -10,26 +10,29 @@ return {
         },
         opts = { skip = true },
       })
-      local focused = true
-      vim.api.nvim_create_autocmd("FocusGained", {
-        callback = function()
-          focused = true
-        end,
-      })
-      vim.api.nvim_create_autocmd("FocusLost", {
-        callback = function()
-          focused = false
-        end,
-      })
-      table.insert(opts.routes, 1, {
-        filter = {
-          cond = function()
-            return not focused
+      -- Forward messages to the desktop while unfocused (needs notify-send, so not on Windows)
+      if vim.fn.executable("notify-send") == 1 then
+        local focused = true
+        vim.api.nvim_create_autocmd("FocusGained", {
+          callback = function()
+            focused = true
           end,
-        },
-        view = "notify_send",
-        opts = { stop = false },
-      })
+        })
+        vim.api.nvim_create_autocmd("FocusLost", {
+          callback = function()
+            focused = false
+          end,
+        })
+        table.insert(opts.routes, 1, {
+          filter = {
+            cond = function()
+              return not focused
+            end,
+          },
+          view = "notify_send",
+          opts = { stop = false },
+        })
+      end
 
       opts.commands = {
         all = {
@@ -53,26 +56,19 @@ return {
     end,
   },
 
-  {
-    "rcarriga/nvim-notify",
-    opts = {
-      timeout = 5000,
-    },
-  },
-
   -- markdown
   {
     "MeanderingProgrammer/render-markdown.nvim",
     enabled = false,
   },
 
-  -- disabled animations when scroll
+  -- notifications and disabled animations when scroll
   {
-    "snacks.nvim",
+    "folke/snacks.nvim",
     opts = {
+      notifier = { timeout = 5000 },
       scroll = { enabled = false },
     },
-    keys = {},
   },
 
   -- buffer line
@@ -129,7 +125,6 @@ return {
   {
     "nvim-lualine/lualine.nvim",
     opts = function(_, opts)
-      local LazyVim = require("lazyvim.util")
       opts.sections.lualine_c[4] = {
         LazyVim.lualine.pretty_path({
           length = 0,

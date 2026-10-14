@@ -29,20 +29,12 @@ keymap.set("n", "dw", 'vb"_d')
 -- Select all
 keymap.set("n", "<C-a>", "gg<S-v>G")
 
--- Save with root permission (not working for now)
---vim.api.nvim_create_user_command('W', 'w !sudo tee > /dev/null %', {})
-
 -- Disable continuations
 keymap.set("n", "<Leader>o", "o<Esc>^Da", opts)
 keymap.set("n", "<Leader>O", "O<Esc>^Da", opts)
 
--- Jumplist
-keymap.set("n", "<C-m>", "<C-i>", opts)
-
--- New tab
-keymap.set("n", "te", ":tabedit")
-keymap.set("n", "<tab>", ":tabnext<Return>", opts)
-keymap.set("n", "<s-tab>", ":tabprev<Return>", opts)
+-- New tab (<Tab>/<S-Tab> cycle tabs, see bufferline in plugins/ui.lua)
+keymap.set("n", "te", ":tabedit ")
 -- Split window
 keymap.set("n", "ss", ":split<Return>", opts)
 keymap.set("n", "sv", ":vsplit<Return>", opts)
@@ -60,16 +52,16 @@ keymap.set("n", "<C-w><down>", "<C-w>-")
 
 -- Diagnostics
 keymap.set("n", "<C-j>", function()
-  vim.lsp.diagnostic.goto_next()
+  vim.diagnostic.jump({ count = 1, float = true })
 end, opts)
 
 keymap.set("n", "<leader>r", function()
   require("phamnam.hsl").replaceHexWithHSL()
-end)
+end, { desc = "Replace Hex with HSL" })
 
 keymap.set("n", "<leader>i", function()
   require("phamnam.lsp").toggleInlayHints()
-end)
+end, { desc = "Toggle Inlay Hints" })
 
 vim.api.nvim_create_user_command("ToggleAutoformat", function()
   require("phamnam.lsp").toggleAutoformat()
