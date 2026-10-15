@@ -50,6 +50,22 @@ keymap.set("n", "<C-w><right>", "<C-w>>")
 keymap.set("n", "<C-w><up>", "<C-w>+")
 keymap.set("n", "<C-w><down>", "<C-w>-")
 
+-- Floating terminal (<C-/> stays the bottom split). count = 9 keeps it a separate
+-- shell from the bottom one; the buffer-local <A-i> hides it from terminal mode
+keymap.set({ "n", "t" }, "<A-i>", function()
+  Snacks.terminal.toggle(nil, {
+    cwd = LazyVim.root(),
+    count = 9,
+    win = {
+      position = "float",
+      border = "rounded",
+      width = 0.8,
+      height = 0.8,
+      keys = { hide_alt_i = { "<A-i>", "hide", desc = "Hide Terminal", mode = { "n", "t" } } },
+    },
+  })
+end, { desc = "Terminal (Float)" })
+
 -- Diagnostics
 keymap.set("n", "<C-j>", function()
   vim.diagnostic.jump({ count = 1, float = true })
