@@ -117,6 +117,8 @@ return {
           },
         },
         gopls = {
+          -- use gopls from `go install golang.org/x/tools/gopls@latest` (see README), mason pins an older release
+          mason = false,
           settings = {
             gopls = {
               gofumpt = true,

@@ -28,7 +28,7 @@ vim.opt.splitright = true -- Put new windows right of current
 vim.opt.splitkeep = "cursor"
 vim.opt.mouse = ""
 
--- Shell: PowerShell on Windows (fish is not available there), fish elsewhere when installed
+-- Shell: PowerShell on Windows; elsewhere keep the default ($SHELL, bash) so nvm and ~/.bashrc PATH apply in :terminal
 if vim.fn.has("win32") == 1 then
   if vim.fn.executable("pwsh") == 1 then
     LazyVim.terminal.setup("pwsh")
@@ -42,8 +42,6 @@ if vim.fn.has("win32") == 1 then
     vim.opt.shellquote = ""
     vim.opt.shellxquote = ""
   end
-elseif vim.fn.executable("fish") == 1 then
-  vim.opt.shell = "fish"
 end
 
 -- Add asterisks in block comments
